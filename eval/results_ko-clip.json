@@ -1,0 +1,463 @@
+{
+  "model": "ko-clip",
+  "n_queries": 50,
+  "summary": {
+    "hit@1": 0.72,
+    "hit@3": 0.82,
+    "hit@5": 0.86,
+    "hit@10": 0.9,
+    "MRR": 0.7805
+  },
+  "per_query": [
+    {
+      "q": "남성 셔츠",
+      "gold_n": 2842,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "여성 원피스",
+      "gold_n": 390,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "남성 청바지",
+      "gold_n": 325,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "여성 핸드백",
+      "gold_n": 1689,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "남성 운동화",
+      "gold_n": 1583,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "여성 힐",
+      "gold_n": 1322,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "선글라스",
+      "gold_n": 1073,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "백팩",
+      "gold_n": 724,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "남성 반팔 티셔츠",
+      "gold_n": 5241,
+      "hit@1": false,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.3333333333333333
+    },
+    {
+      "q": "여성 블라우스",
+      "gold_n": 1532,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "hit@10": true,
+      "rr": 0.125
+    },
+    {
+      "q": "네이비 남성 셔츠",
+      "gold_n": 174,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.2
+    },
+    {
+      "q": "검정색 여성 핸드백",
+      "gold_n": 322,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "흰색 남성 티셔츠",
+      "gold_n": 788,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.2
+    },
+    {
+      "q": "파란색 청바지",
+      "gold_n": 445,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "빨간색 여성 원피스",
+      "gold_n": 20,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "hit@10": true,
+      "rr": 0.16666666666666666
+    },
+    {
+      "q": "갈색 남성 벨트",
+      "gold_n": 200,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "실버 여성 손목시계",
+      "gold_n": 129,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0
+    },
+    {
+      "q": "골드 귀걸이",
+      "gold_n": 93,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "분홍색 여성 샌들",
+      "gold_n": 51,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0
+    },
+    {
+      "q": "초록색 남성 티셔츠",
+      "gold_n": 406,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "회색 스웨트셔츠",
+      "gold_n": 61,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "검정 남성 정장 구두",
+      "gold_n": 397,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "노란색 티셔츠",
+      "gold_n": 323,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "보라색 여성 상의",
+      "gold_n": 108,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "흰색 운동화",
+      "gold_n": 1331,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "출근용 남성 셔츠",
+      "gold_n": 836,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "캐주얼 남성 신발",
+      "gold_n": 2218,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "운동용 남성 반바지",
+      "gold_n": 172,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "여름용 원피스",
+      "gold_n": 326,
+      "hit@1": false,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5
+    },
+    {
+      "q": "겨울 스웨터",
+      "gold_n": 13,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0
+    },
+    {
+      "q": "스포츠 양말",
+      "gold_n": 139,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "파티용 여성 원피스",
+      "gold_n": 19,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "인도 전통 여성 쿠르타",
+      "gold_n": 1993,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0
+    },
+    {
+      "q": "캐주얼 남성 반팔",
+      "gold_n": 4458,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "여행용 백팩",
+      "gold_n": 724,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "여름에 신는 슬리퍼",
+      "gold_n": 914,
+      "hit@1": false,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5
+    },
+    {
+      "q": "출근할 때 신는 검정 구두",
+      "gold_n": 397,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "운동할 때 입는 바지",
+      "gold_n": 304,
+      "hit@1": false,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5
+    },
+    {
+      "q": "청바지에 어울리는 남성 캐주얼 셔츠",
+      "gold_n": 1977,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "손목에 차는 시계",
+      "gold_n": 2542,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "햇빛 가리는 모자",
+      "gold_n": 283,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "지갑",
+      "gold_n": 928,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "남성 가죽 지갑",
+      "gold_n": 442,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "넥타이",
+      "gold_n": 263,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "여성 귀걸이",
+      "gold_n": 415,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "아이들 티셔츠",
+      "gold_n": 637,
+      "hit@1": false,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 0.5
+    },
+    {
+      "q": "남아용 신발",
+      "gold_n": 27,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": false,
+      "hit@10": false,
+      "rr": 0.0
+    },
+    {
+      "q": "향수",
+      "gold_n": 1007,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "립스틱",
+      "gold_n": 260,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    },
+    {
+      "q": "매니큐어",
+      "gold_n": 278,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "hit@10": true,
+      "rr": 1.0
+    }
+  ]
+}
