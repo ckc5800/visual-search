@@ -1,0 +1,50 @@
+{"q": "남성 셔츠", "filters": {"articleType": "Shirts", "gender": "Men"}}
+{"q": "여성 원피스", "filters": {"articleType": "Dresses", "gender": "Women"}}
+{"q": "남성 청바지", "filters": {"articleType": "Jeans", "gender": "Men"}}
+{"q": "여성 핸드백", "filters": {"articleType": "Handbags", "gender": "Women"}}
+{"q": "남성 운동화", "filters": {"articleType": "Sports Shoes", "gender": "Men"}}
+{"q": "여성 힐", "filters": {"articleType": "Heels", "gender": "Women"}}
+{"q": "선글라스", "filters": {"articleType": "Sunglasses"}}
+{"q": "백팩", "filters": {"articleType": "Backpacks"}}
+{"q": "남성 반팔 티셔츠", "filters": {"articleType": "Tshirts", "gender": "Men"}}
+{"q": "여성 블라우스", "filters": {"articleType": "Tops", "gender": "Women"}}
+{"q": "네이비 남성 셔츠", "filters": {"articleType": "Shirts", "baseColour": "Navy Blue", "gender": "Men"}}
+{"q": "검정색 여성 핸드백", "filters": {"articleType": "Handbags", "baseColour": "Black", "gender": "Women"}}
+{"q": "흰색 남성 티셔츠", "filters": {"articleType": "Tshirts", "baseColour": "White", "gender": "Men"}}
+{"q": "파란색 청바지", "filters": {"articleType": "Jeans", "baseColour": "Blue"}}
+{"q": "빨간색 여성 원피스", "filters": {"articleType": "Dresses", "baseColour": "Red", "gender": "Women"}}
+{"q": "갈색 남성 벨트", "filters": {"articleType": "Belts", "baseColour": "Brown", "gender": "Men"}}
+{"q": "실버 여성 손목시계", "filters": {"articleType": "Watches", "baseColour": "Silver", "gender": "Women"}}
+{"q": "골드 귀걸이", "filters": {"articleType": "Earrings", "baseColour": "Gold"}}
+{"q": "분홍색 여성 샌들", "filters": {"articleType": ["Sandals", "Flats", "Heels"], "baseColour": "Pink", "gender": "Women"}}
+{"q": "초록색 남성 티셔츠", "filters": {"articleType": "Tshirts", "baseColour": "Green", "gender": "Men"}}
+{"q": "회색 스웨트셔츠", "filters": {"articleType": "Sweatshirts", "baseColour": "Grey"}}
+{"q": "검정 남성 정장 구두", "filters": {"articleType": "Formal Shoes", "baseColour": "Black", "gender": "Men"}}
+{"q": "노란색 티셔츠", "filters": {"articleType": "Tshirts", "baseColour": "Yellow"}}
+{"q": "보라색 여성 상의", "filters": {"articleType": "Tops", "baseColour": "Purple", "gender": "Women"}}
+{"q": "흰색 운동화", "filters": {"articleType": ["Sports Shoes", "Casual Shoes"], "baseColour": "White"}}
+{"q": "출근용 남성 셔츠", "filters": {"articleType": "Shirts", "gender": "Men", "usage": "Formal"}}
+{"q": "캐주얼 남성 신발", "filters": {"articleType": "Casual Shoes", "gender": "Men", "usage": "Casual"}}
+{"q": "운동용 남성 반바지", "filters": {"articleType": "Shorts", "gender": "Men", "usage": "Sports"}}
+{"q": "여름용 원피스", "filters": {"articleType": "Dresses", "season": "Summer"}}
+{"q": "겨울 스웨터", "filters": {"articleType": "Sweaters", "season": "Winter"}}
+{"q": "스포츠 양말", "filters": {"articleType": "Socks", "usage": "Sports"}}
+{"q": "파티용 여성 원피스", "filters": {"articleType": "Dresses", "gender": "Women", "usage": "Party"}}
+{"q": "인도 전통 여성 쿠르타", "filters": {"articleType": ["Kurtas", "Kurtis"], "gender": "Women"}}
+{"q": "캐주얼 남성 반팔", "filters": {"articleType": "Tshirts", "gender": "Men", "usage": "Casual"}}
+{"q": "여행용 백팩", "filters": {"articleType": "Backpacks"}}
+{"q": "여름에 신는 슬리퍼", "filters": {"articleType": "Flip Flops"}}
+{"q": "출근할 때 신는 검정 구두", "filters": {"articleType": "Formal Shoes", "baseColour": "Black"}}
+{"q": "운동할 때 입는 바지", "filters": {"articleType": "Track Pants"}}
+{"q": "청바지에 어울리는 남성 캐주얼 셔츠", "filters": {"articleType": "Shirts", "gender": "Men", "usage": "Casual"}}
+{"q": "손목에 차는 시계", "filters": {"articleType": "Watches"}}
+{"q": "햇빛 가리는 모자", "filters": {"articleType": "Caps"}}
+{"q": "지갑", "filters": {"articleType": "Wallets"}}
+{"q": "남성 가죽 지갑", "filters": {"articleType": "Wallets", "gender": "Men"}}
+{"q": "넥타이", "filters": {"articleType": "Ties"}}
+{"q": "여성 귀걸이", "filters": {"articleType": "Earrings", "gender": "Women"}}
+{"q": "아이들 티셔츠", "filters": {"articleType": "Tshirts", "gender": ["Boys", "Girls"]}}
+{"q": "남아용 신발", "filters": {"subCategory": "Shoes", "gender": "Boys"}}
+{"q": "향수", "filters": {"articleType": ["Perfume and Body Mist", "Fragrance Gift Set", "Deodorant"]}}
+{"q": "립스틱", "filters": {"articleType": "Lipstick"}}
+{"q": "매니큐어", "filters": {"articleType": "Nail Polish"}}
