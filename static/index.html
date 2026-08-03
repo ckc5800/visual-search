@@ -100,6 +100,10 @@
   .chips span:active { transform: scale(.95); }
 
   .status { font-size: .82rem; color: var(--text-2); min-height: 1.2em; margin: 4px 0 14px; }
+  /* 정교화 대화 경로: 원질의 → 후속발화 → … (마지막이 현재 조건) */
+  .path { font-size: .85rem; color: var(--text-2); margin: 2px 0 6px; }
+  .path b { color: var(--accent); font-weight: 600; }
+  .path .sep { opacity: .5; padding: 0 2px; }
   .hidden { display: none !important; }
 
   /* ── 결과 그리드 · 카드: 깊이 레이어링 + 리프트 호버 ────────────────── */
@@ -156,6 +160,7 @@
       <button>정교화</button>
     </form>
     <div class="chips hidden" id="rchips"></div>
+    <div class="path hidden" id="path"></div>
     <div class="status" id="status"></div>
     <div class="grid" id="grid"></div>
   </main>
@@ -165,7 +170,23 @@ const EXAMPLES = ["체크무늬 네이비 남성 셔츠", "여름용 캐주얼 �
 const REFINE_EXAMPLES = ["좀 더 캐주얼하게", "검정색으로", "여성용으로", "네이비 말고 초록색"];
 const SKELETON_N = 12;
 const $ = id => document.getElementById(id);
-let cur = null;  // {q, filters} — 정교화용 병합 상태 (서버는 무상태)
+let cur = null;   // {q, filters} — 정교화용 병합 상태 (서버는 무상태)
+let qPath = [];   // 대화 경로: [원질의, 후속발화, …]
+
+const escapeHtml = s => s.replace(/[&<>"']/g,
+  c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+
+function renderPath() {
+  const el = $("path");
+  if (qPath.length > 1) {
+    el.innerHTML = qPath
+      .map((t, i) => (i === qPath.length - 1 ? `<b>${escapeHtml(t)}</b>` : escapeHtml(t)))
+      .join('<span class="sep"> → </span>');
+    el.classList.remove("hidden");
+  } else {
+    el.classList.add("hidden");
+  }
+}
 
 function chip(parent, text, onclick) {
   const s = document.createElement("span");
@@ -173,7 +194,7 @@ function chip(parent, text, onclick) {
   s.onclick = onclick;
   parent.appendChild(s);
 }
-EXAMPLES.forEach(t => chip($("chips"), t, () => { $("q").value = t; run(searchUrl(t)); }));
+EXAMPLES.forEach(t => chip($("chips"), t, () => { $("q").value = t; qPath = [t]; run(searchUrl(t)); }));
 REFINE_EXAMPLES.forEach(t => chip($("rchips"), t, () => refineRun(t)));
 
 const searchUrl = q =>
@@ -181,6 +202,7 @@ const searchUrl = q =>
 
 function refineRun(followup) {
   if (!cur) return;
+  qPath.push(followup);
   run(`/api/refine?q=${encodeURIComponent(cur.q)}&followup=${encodeURIComponent(followup)}` +
       `&filters=${encodeURIComponent(JSON.stringify(cur.filters))}`);
 }
@@ -188,7 +210,7 @@ function refineRun(followup) {
 $("f").onsubmit = e => {
   e.preventDefault();
   const q = $("q").value.trim();
-  if (q) run(searchUrl(q));
+  if (q) { qPath = [q]; run(searchUrl(q)); }
 };
 
 // ?q=질의&hybrid=0&followup=후속발화 — 공유 가능한 검색 링크 (스크린샷 자동화에도 사용)
@@ -198,6 +220,7 @@ $("f").onsubmit = e => {
   if (q0) {
     if (p.get("hybrid") === "0") $("hybrid").checked = false;
     $("q").value = q0;
+    qPath = [q0];
     run(searchUrl(q0)).then(() => {
       const fu = p.get("followup");
       if (fu) { $("followup").value = fu; refineRun(fu); }
@@ -259,6 +282,9 @@ async function run(url) {
       cur = { q: data.query, filters: data.filters || {} };
       $("rf").classList.remove("hidden");
       $("rchips").classList.remove("hidden");
+      renderPath();
+    } else {
+      $("path").classList.add("hidden");  // 비슷한 상품 모드에선 경로 감춤
     }
   } catch (err) {
     $("status").textContent = `오류: ${err.message}`;
