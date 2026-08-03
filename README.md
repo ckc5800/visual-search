@@ -1,5 +1,7 @@
 # visual-search — 한국어 멀티모달 상품 검색
 
+[![ci](https://github.com/ckc5800/visual-search/actions/workflows/ci.yml/badge.svg)](https://github.com/ckc5800/visual-search/actions/workflows/ci.yml)
+
 한국어 문장형 질의("체크무늬 네이비 남성 셔츠")로 상품 이미지를 검색하는 프로젝트.
 텍스트 RAG([portfolio-rag-agent](https://github.com/ckc5800/portfolio-rag-agent))에서 쓴
 검색 평가 방법론(recall@k·MRR, 정직한 실패 기록)을 멀티모달로 확장하는 것이 목표다.
