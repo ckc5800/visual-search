@@ -64,13 +64,22 @@ def _results(indices, scores) -> list[dict]:
 
 
 @app.get("/api/search")
-def search(q: str, k: int = 24):
+def search(q: str, k: int = 24, hybrid: bool = False):
     import numpy as np
 
+    from evaluate import build_gold_mask
+    from hybrid import apply_filter_to_scores, extract_filters
+
+    store = STATE["store"]
     emb = STATE["embedder"].embed_texts([q])[0]
-    scores = STATE["store"].emb @ emb
+    scores = store.emb @ emb
+    filters = extract_filters(q) if hybrid else {}
+    if filters:
+        scores = apply_filter_to_scores(scores, build_gold_mask(store.meta, filters))
     top = np.argsort(-scores)[:k]
-    return {"model": STATE["model_key"], "query": q, "items": _results(top, scores)}
+    top = top[np.isfinite(scores[top])]  # 필터 통과분이 k 미만이면 그만큼만
+    return {"model": STATE["model_key"], "query": q, "hybrid": hybrid,
+            "filters": filters, "items": _results(top, scores)}
 
 
 @app.get("/api/similar")

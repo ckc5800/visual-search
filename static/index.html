@@ -38,6 +38,10 @@
     <input type="text" id="q" placeholder="예: 체크무늬 네이비 남성 셔츠" autofocus>
     <button>검색</button>
   </form>
+  <label style="font-size:.85rem; display:block; margin-bottom:8px">
+    <input type="checkbox" id="hybrid" checked>
+    하이브리드: 질의에서 색·성별·용도를 추출해 메타 필터로 결합
+  </label>
   <div class="chips" id="chips"></div>
   <div id="status"></div>
   <div class="grid" id="grid"></div>
@@ -46,17 +50,20 @@ const EXAMPLES = ["체크무늬 네이비 남성 셔츠", "여름용 캐주얼 �
                   "검정 남성 정장 구두", "스포츠용 백팩", "골드 귀걸이"];
 const $ = id => document.getElementById(id);
 
+const searchUrl = q =>
+  `/api/search?q=${encodeURIComponent(q)}&hybrid=${$("hybrid").checked}`;
+
 EXAMPLES.forEach(t => {
   const s = document.createElement("span");
   s.textContent = t;
-  s.onclick = () => { $("q").value = t; run(`/api/search?q=${encodeURIComponent(t)}`); };
+  s.onclick = () => { $("q").value = t; run(searchUrl(t)); };
   $("chips").appendChild(s);
 });
 
 $("f").onsubmit = e => {
   e.preventDefault();
   const q = $("q").value.trim();
-  if (q) run(`/api/search?q=${encodeURIComponent(q)}`);
+  if (q) run(searchUrl(q));
 };
 
 async function run(url) {
@@ -71,7 +78,10 @@ async function run(url) {
     const head = data.anchor
       ? `"${data.anchor.productDisplayName}"와 비슷한 상품`
       : `"${data.query}" 검색 결과`;
-    $("status").textContent = `${head} — top ${data.items.length}, ${ms}ms, model=${data.model}`;
+    const f = data.filters && Object.keys(data.filters).length
+      ? ` · 필터 ${Object.entries(data.filters).map(([k, v]) => `${k}=${v.join("|")}`).join(", ")}`
+      : "";
+    $("status").textContent = `${head} — top ${data.items.length}, ${ms}ms, model=${data.model}${f}`;
     for (const it of data.items) {
       const card = document.createElement("div");
       card.className = "card";

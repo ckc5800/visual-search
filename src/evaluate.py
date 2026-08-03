@@ -49,7 +49,8 @@ def rank_metrics(ranked_gold: np.ndarray, ks: list[int]) -> dict:
     """ranked_gold: 점수 내림차순으로 정렬된 gold 여부 bool 배열 (상위 max(ks)개)."""
     max_k = max(ks)
     m = {f"hit@{k}": bool(ranked_gold[:k].any()) for k in ks}
-    m[f"precision@{max_k}"] = float(ranked_gold[:max_k].mean())
+    # 분모는 항상 max_k — 하이브리드 필터로 후보가 k 미만이어도 부풀리지 않는다
+    m[f"precision@{max_k}"] = float(ranked_gold[:max_k].sum() / max_k)
     first = np.flatnonzero(ranked_gold)
     m["rr"] = float(1.0 / (first[0] + 1)) if len(first) else 0.0
     return m
@@ -69,6 +70,8 @@ def main():
     ap.add_argument("--strict", action="store_true", help="gold가 빈 질의가 있으면 실패")
     ap.add_argument("--subset-stride", type=int, default=1,
                     help="인덱스를 N행마다 1개로 슬라이스 — stride 인제스트된 모델과 공정 비교용")
+    ap.add_argument("--hybrid", action="store_true",
+                    help="질의에서 색·성별·용도를 룰 추출해 메타 필터 결합")
     args = ap.parse_args()
 
     from models import load_embedder
@@ -98,7 +101,14 @@ def main():
         if not gold.any():
             continue
         scores = store.emb @ emb
+        if args.hybrid:
+            from hybrid import apply_filter_to_scores, extract_filters
+
+            hf = extract_filters(q["q"])
+            if hf:
+                scores = apply_filter_to_scores(scores, build_gold_mask(store.meta, hf))
         top = np.argsort(-scores)[:max_k]
+        top = top[np.isfinite(scores[top])]  # 필터 통과분이 k 미만이면 그만큼만
         m = rank_metrics(gold[top], args.k)
         rows.append({
             "q": q["q"], "gold_n": int(gold.sum()), "bucket": bucket_of(int(gold.sum())),
@@ -138,6 +148,7 @@ def main():
             "n_items": int(len(store.meta)),
             "emb_dim": int(store.emb.shape[1]),
             "subset_stride": args.subset_stride,
+            "hybrid": args.hybrid,
             "k": args.k,
         },
         "summary": summary,
@@ -145,6 +156,8 @@ def main():
         "per_query": rows,
     }
     suffix = f"_stride{args.subset_stride}" if args.subset_stride > 1 else ""
+    if args.hybrid:
+        suffix += "_hybrid"
     out = ROOT / "eval" / f"results_{args.model}{suffix}.json"
     out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n[evaluate] 저장: {out}")
