@@ -5,86 +5,160 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>visual-search — 한국어 상품 검색</title>
 <style>
-  /* ── 디자인 토큰: 색·간격·모양은 여기서만 바꾼다 ─────────────────── */
+  /* ── 디자인 토큰: 색·간격·모양·모션은 여기서만 바꾼다 ─────────────────
+     방향: Apple Liquid Glass 계열 — 절제된 글래스(블러+반투명), 깊이 레이어링,
+     미니멀 타이포, 부드러운 스프링 모션. 다크 모드는 토큰 오버라이드로 처리. */
   :root {
     color-scheme: light dark;
-    --accent: #3b6ef6;
+    --bg: #f5f5f7;
+    --surface: #ffffff;
+    --glass: rgba(255, 255, 255, .72);
+    --text: #1d1d1f;
+    --text-2: rgba(29, 29, 31, .56);
+    --accent: #0071e3;
     --accent-text: #fff;
-    --border: color-mix(in srgb, canvastext 12%, transparent);
-    --border-strong: color-mix(in srgb, canvastext 25%, transparent);
-    --chip-bg: color-mix(in srgb, canvastext 8%, transparent);
-    --skeleton: color-mix(in srgb, canvastext 10%, transparent);
-    --muted: .65;
-    --radius: 10px;
-    --radius-card: 12px;
-    --gap: 14px;
-    --card-min: 150px;
-    --font: 'Segoe UI', 'Malgun Gothic', sans-serif;
-    --fs-title: 1.3rem; --fs-input: 1.05rem; --fs-small: .85rem;
-    --fs-chip: .8rem; --fs-card: .78rem;
+    --ring: rgba(0, 113, 227, .35);
+    --hairline: rgba(0, 0, 0, .08);
+    --chip-bg: rgba(0, 0, 0, .05);
+    --chip-hover: rgba(0, 0, 0, .09);
+    --skeleton: rgba(0, 0, 0, .07);
+    --shadow-card: 0 1px 2px rgba(0,0,0,.04), 0 4px 16px rgba(0,0,0,.06);
+    --shadow-lift: 0 2px 6px rgba(0,0,0,.06), 0 12px 32px rgba(0,0,0,.12);
+    --radius: 999px;          /* 입력·버튼·칩: 필 */
+    --radius-card: 16px;
+    --gap: 16px;
+    --card-min: 160px;
     --page-max: 1100px;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+            "Segoe UI Variable", "Segoe UI", "Malgun Gothic", sans-serif;
   }
-  * { box-sizing: border-box; }
-  body { font-family: var(--font); margin: 0 auto; padding: 24px;
-         background: canvas; color: canvastext; max-width: var(--page-max); }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #000;
+      --surface: #1c1c1e;
+      --glass: rgba(22, 22, 24, .72);
+      --text: #f5f5f7;
+      --text-2: rgba(245, 245, 247, .55);
+      --accent: #0a84ff;
+      --ring: rgba(10, 132, 255, .4);
+      --hairline: rgba(255, 255, 255, .1);
+      --chip-bg: rgba(255, 255, 255, .08);
+      --chip-hover: rgba(255, 255, 255, .14);
+      --skeleton: rgba(255, 255, 255, .08);
+      --shadow-card: 0 1px 2px rgba(0,0,0,.4), 0 6px 20px rgba(0,0,0,.5);
+      --shadow-lift: 0 2px 8px rgba(0,0,0,.5), 0 16px 40px rgba(0,0,0,.6);
+    }
+  }
 
-  /* ── 레이아웃 컴포넌트 ──────────────────────────────────────────── */
-  h1 { font-size: var(--fs-title); margin: 0 0 4px; }
-  .sub { opacity: var(--muted); font-size: var(--fs-small); margin-bottom: 16px; }
-  .row { display: flex; gap: 8px; margin-bottom: 8px; }
-  .row input[type=text] { flex: 1; font-size: var(--fs-input); padding: 10px 14px;
-                          border-radius: var(--radius); border: 1px solid var(--border-strong);
-                          background: canvas; color: canvastext; }
-  .row button { font-size: 1rem; padding: 10px 18px; border-radius: var(--radius);
-                border: none; background: var(--accent); color: var(--accent-text);
-                cursor: pointer; }
-  .toggle { font-size: var(--fs-small); display: block; margin-bottom: 8px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
-  .chips span { font-size: var(--fs-chip); padding: 4px 10px; border-radius: 999px;
-                cursor: pointer; background: var(--chip-bg); }
-  .status { font-size: var(--fs-small); opacity: .7; min-height: 1.2em; margin-bottom: 10px; }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: var(--font); margin: 0; background: var(--bg); color: var(--text);
+         -webkit-font-smoothing: antialiased; }
+
+  /* ── 글래스 헤더: 스크롤해도 검색이 따라온다 ───────────────────────── */
+  .glass-header { position: sticky; top: 0; z-index: 10;
+                  background: var(--glass);
+                  -webkit-backdrop-filter: saturate(180%) blur(20px);
+                  backdrop-filter: saturate(180%) blur(20px);
+                  border-bottom: 1px solid var(--hairline); }
+  .glass-header .inner, main { max-width: var(--page-max); margin: 0 auto; padding: 16px 24px; }
+  main { padding-top: 20px; }
+
+  h1 { font-size: 1.45rem; font-weight: 650; letter-spacing: -.02em; margin: 0 0 2px; }
+  .sub { color: var(--text-2); font-size: .85rem; margin-bottom: 14px; }
+
+  .row { display: flex; gap: 8px; margin-bottom: 10px; }
+  .row input[type=text] {
+    flex: 1; font-size: 1rem; font-family: inherit; padding: 11px 20px;
+    border-radius: var(--radius); border: 1px solid var(--hairline);
+    background: var(--surface); color: var(--text);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow .25s var(--ease), border-color .25s var(--ease);
+  }
+  .row input[type=text]:focus { outline: none; border-color: var(--accent);
+                                box-shadow: 0 0 0 4px var(--ring); }
+  .row input::placeholder { color: var(--text-2); }
+  .row button {
+    font-size: .95rem; font-weight: 600; font-family: inherit; padding: 11px 22px;
+    border-radius: var(--radius); border: none;
+    background: var(--accent); color: var(--accent-text); cursor: pointer;
+    transition: transform .2s var(--ease), filter .2s var(--ease);
+  }
+  .row button:hover { filter: brightness(1.08); }
+  .row button:active { transform: scale(.96); }
+
+  .toggle { font-size: .82rem; color: var(--text-2); display: block; margin-bottom: 10px;
+            user-select: none; }
+  .toggle input { accent-color: var(--accent); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 6px; }
+  .chips span { font-size: .8rem; padding: 6px 14px; border-radius: var(--radius);
+                cursor: pointer; background: var(--chip-bg); color: var(--text);
+                transition: background .2s var(--ease), transform .2s var(--ease); }
+  .chips span:hover { background: var(--chip-hover); }
+  .chips span:active { transform: scale(.95); }
+
+  .status { font-size: .82rem; color: var(--text-2); min-height: 1.2em; margin: 4px 0 14px; }
   .hidden { display: none !important; }
 
-  /* ── 결과 그리드 · 카드 ─────────────────────────────────────────── */
+  /* ── 결과 그리드 · 카드: 깊이 레이어링 + 리프트 호버 ────────────────── */
   .grid { display: grid; gap: var(--gap);
           grid-template-columns: repeat(auto-fill, minmax(var(--card-min), 1fr)); }
-  .card { border: 1px solid var(--border); border-radius: var(--radius-card); overflow: hidden; }
-  .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block; cursor: pointer;
-              background: var(--skeleton); }
-  .card .info { padding: 8px 10px; font-size: var(--fs-card); line-height: 1.35; }
+  .card { background: var(--surface); border-radius: var(--radius-card); overflow: hidden;
+          box-shadow: var(--shadow-card);
+          transition: transform .35s var(--ease), box-shadow .35s var(--ease);
+          animation: rise .45s var(--ease) backwards; }
+  .card:nth-child(-n+24) { animation-delay: calc(var(--i, 0) * 22ms); }
+  .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lift); }
+  .card img { width: 100%; aspect-ratio: 3/4; object-fit: cover; display: block;
+              cursor: pointer; background: var(--skeleton);
+              transition: transform .5s var(--ease); }
+  .card:hover img { transform: scale(1.04); }
+  .card .info { padding: 10px 12px 12px; font-size: .78rem; line-height: 1.4; }
   .card .name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-                overflow: hidden; min-height: 2.7em; }
-  .card .meta { opacity: .6; }
-  .card .score { float: right; opacity: .5; }
+                overflow: hidden; min-height: 2.8em; font-weight: 500; }
+  .card .meta { color: var(--text-2); margin-top: 2px; }
+  .card .score { float: right; opacity: .6; font-variant-numeric: tabular-nums; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
 
-  /* ── 로딩 상태: 스켈레톤이 즉시 떠서 체감 TTFB를 줄인다 ───────────── */
-  .card.skeleton .ph { background: var(--skeleton); border-radius: 4px;
+  /* ── 로딩 상태: 스켈레톤이 즉시 떠서 체감 TTFB를 줄인다 ─────────────── */
+  .card.skeleton { animation: none; }
+  .card.skeleton .ph { background: var(--skeleton); border-radius: 6px;
                        animation: pulse 1.2s ease-in-out infinite; }
   .card.skeleton .ph-img { aspect-ratio: 3/4; border-radius: 0; }
-  .card.skeleton .ph-line { height: .9em; margin: 8px 10px; }
+  .card.skeleton .ph-line { height: .9em; margin: 10px 12px; }
   .card.skeleton .ph-line.short { width: 55%; margin-top: 4px; }
   @keyframes pulse { 50% { opacity: .45; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card, .card img { animation: none; transition: none; }
+  }
 </style>
 </head>
 <body>
-  <h1>visual-search</h1>
-  <div class="sub">한국어 문장형 질의로 상품 44,072개를 검색합니다. 이미지를 클릭하면 비슷한 상품을 찾아요.</div>
-  <form id="f" class="row">
-    <input type="text" id="q" placeholder="예: 체크무늬 네이비 남성 셔츠" autofocus>
-    <button>검색</button>
-  </form>
-  <label class="toggle">
-    <input type="checkbox" id="hybrid" checked>
-    하이브리드: 질의에서 색·성별·용도를 추출해 메타 필터로 결합
-  </label>
-  <div class="chips" id="chips"></div>
-  <form id="rf" class="row hidden">
-    <input type="text" id="followup" placeholder='이어서 조건 바꾸기 — 예: "좀 더 캐주얼하게", "네이비 말고 검정색으로"'>
-    <button>정교화</button>
-  </form>
-  <div class="chips hidden" id="rchips"></div>
-  <div class="status" id="status"></div>
-  <div class="grid" id="grid"></div>
+  <header class="glass-header"><div class="inner">
+    <h1>visual-search</h1>
+    <div class="sub">한국어 문장형 질의로 상품 44,072개를 검색합니다. 이미지를 클릭하면 비슷한 상품을 찾아요.</div>
+    <form id="f" class="row">
+      <input type="text" id="q" placeholder="예: 체크무늬 네이비 남성 셔츠" autofocus>
+      <button>검색</button>
+    </form>
+    <label class="toggle">
+      <input type="checkbox" id="hybrid" checked>
+      하이브리드: 질의에서 색·성별·용도를 추출해 메타 필터로 결합
+    </label>
+  </div></header>
+  <main>
+    <div class="chips" id="chips"></div>
+    <form id="rf" class="row hidden">
+      <input type="text" id="followup" placeholder='이어서 조건 바꾸기 — 예: "좀 더 캐주얼하게", "네이비 말고 검정색으로"'>
+      <button>정교화</button>
+    </form>
+    <div class="chips hidden" id="rchips"></div>
+    <div class="status" id="status"></div>
+    <div class="grid" id="grid"></div>
+  </main>
 <script>
 const EXAMPLES = ["체크무늬 네이비 남성 셔츠", "여름용 캐주얼 원피스", "실버 여성 손목시계",
                   "검정 남성 정장 구두", "스포츠용 백팩", "골드 귀걸이"];
@@ -131,9 +205,10 @@ function showSkeleton() {
     </div>`).join("");
 }
 
-function card(it) {
+function card(it, i) {
   const el = document.createElement("div");
   el.className = "card";
+  el.style.setProperty("--i", i);
   el.innerHTML = `
     <img src="/image/${it.pos}" loading="lazy" alt="">
     <div class="info">
