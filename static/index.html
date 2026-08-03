@@ -190,6 +190,20 @@ $("f").onsubmit = e => {
   const q = $("q").value.trim();
   if (q) run(searchUrl(q));
 };
+
+// ?q=질의&hybrid=0&followup=후속발화 — 공유 가능한 검색 링크 (스크린샷 자동화에도 사용)
+{
+  const p = new URLSearchParams(location.search);
+  const q0 = p.get("q");
+  if (q0) {
+    if (p.get("hybrid") === "0") $("hybrid").checked = false;
+    $("q").value = q0;
+    run(searchUrl(q0)).then(() => {
+      const fu = p.get("followup");
+      if (fu) { $("followup").value = fu; refineRun(fu); }
+    });
+  }
+}
 $("rf").onsubmit = e => {
   e.preventDefault();
   const t = $("followup").value.trim();
