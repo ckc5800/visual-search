@@ -170,8 +170,9 @@ const EXAMPLES = ["체크무늬 네이비 남성 셔츠", "여름용 캐주얼 �
 const REFINE_EXAMPLES = ["좀 더 캐주얼하게", "검정색으로", "여성용으로", "네이비 말고 초록색"];
 const SKELETON_N = 12;
 const $ = id => document.getElementById(id);
-let cur = null;   // {q, filters} — 정교화용 병합 상태 (서버는 무상태)
-let qPath = [];   // 대화 경로: [원질의, 후속발화, …]
+let cur = null;       // {q, filters} — 정교화용 병합 상태 (서버는 무상태)
+let curAnchor = null; // 비슷한 상품/복합 질의의 앵커 상품 pos
+let qPath = [];       // 대화 경로: [원질의, 후속발화, …]
 
 const escapeHtml = s => s.replace(/[&<>"']/g,
   c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
@@ -201,10 +202,13 @@ const searchUrl = q =>
   `/api/search?q=${encodeURIComponent(q)}&hybrid=${$("hybrid").checked}`;
 
 function refineRun(followup) {
-  if (!cur) return;
-  qPath.push(followup);
-  run(`/api/refine?q=${encodeURIComponent(cur.q)}&followup=${encodeURIComponent(followup)}` +
-      `&filters=${encodeURIComponent(JSON.stringify(cur.filters))}`);
+  if (curAnchor !== null) {  // 앵커 이미지 기준 복합 질의: 스타일=벡터, 속성=필터
+    run(`/api/compose?pos=${curAnchor}&text=${encodeURIComponent(followup)}`);
+  } else if (cur) {
+    qPath.push(followup);
+    run(`/api/refine?q=${encodeURIComponent(cur.q)}&followup=${encodeURIComponent(followup)}` +
+        `&filters=${encodeURIComponent(JSON.stringify(cur.filters))}`);
+  }
 }
 
 $("f").onsubmit = e => {
@@ -280,12 +284,20 @@ async function run(url) {
     $("grid").replaceChildren(...data.items.map(card));
     if (!data.anchor) {  // 텍스트 검색/정교화 결과만 정교화 상태로 저장
       cur = { q: data.query, filters: data.filters || {} };
-      $("rf").classList.remove("hidden");
-      $("rchips").classList.remove("hidden");
+      curAnchor = null;
+      $("followup").placeholder =
+        '이어서 조건 바꾸기 — 예: "좀 더 캐주얼하게", "네이비 말고 검정색으로"';
       renderPath();
-    } else {
-      $("path").classList.add("hidden");  // 비슷한 상품 모드에선 경로 감춤
+    } else {  // 비슷한 상품/복합 질의: 앵커 기준으로 후속 발화 가능
+      curAnchor = data.anchor.pos;
+      cur = null;
+      qPath = [`[이미지] ${data.anchor.productDisplayName}`];
+      if (data.text) qPath.push(data.text);
+      $("followup").placeholder = '이 상품 기준으로 바꾸기 — 예: "검정색으로", "좀 더 포멀하게"';
+      renderPath();
     }
+    $("rf").classList.remove("hidden");
+    $("rchips").classList.remove("hidden");
   } catch (err) {
     $("status").textContent = `오류: ${err.message}`;
     $("grid").innerHTML = "";

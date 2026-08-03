@@ -115,6 +115,39 @@ def refine(q: str, followup: str, filters: str = "{}", k: int = 24):
             "timing": timing, "items": _results(top, scores)}
 
 
+@app.get("/api/compose")
+def compose(pos: int, text: str, alpha: float = 0.5, k: int = 24):
+    """이미지+텍스트 복합 질의: 앵커 상품 임베딩과 텍스트 임베딩을 가중 합성(alpha가
+    이미지 비중)하고, 텍스트에서 추출한 색·성별·용도는 메타 필터로 건다.
+    "이거랑 비슷한데 검정색으로" — 스타일은 벡터가, 속성은 필터가 담당."""
+    import numpy as np
+
+    from evaluate import build_gold_mask
+    from hybrid import apply_filter_to_scores, extract_filters
+
+    store = STATE["store"]
+    if not 0 <= pos < len(store.meta):
+        raise HTTPException(404)
+    t0 = time.perf_counter()
+    q = alpha * store.emb[pos] + (1 - alpha) * _embed_query(text)
+    q = q / np.linalg.norm(q)
+    t1 = time.perf_counter()
+    scores = store.emb @ q
+    filters = extract_filters(text)
+    if filters:
+        scores = apply_filter_to_scores(scores, build_gold_mask(store.meta, filters))
+    scores = scores.copy()
+    scores[pos] = -np.inf  # 앵커 자신 제외
+    top = np.argsort(-scores)[:k]
+    top = top[np.isfinite(scores[top])]
+    t2 = time.perf_counter()
+    return {"model": STATE["model_key"], "anchor": _results([pos], store.emb @ store.emb[pos])[0],
+            "text": text, "filters": filters,
+            "timing": {"embed_ms": round((t1 - t0) * 1000, 1),
+                       "rank_ms": round((t2 - t1) * 1000, 1)},
+            "items": _results(top, scores)}
+
+
 @app.get("/api/similar")
 def similar(pos: int, k: int = 24):
     import numpy as np
