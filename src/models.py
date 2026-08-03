@@ -80,9 +80,35 @@ class JinaEmbedder:
         return _l2_normalize(np.asarray(emb, dtype=np.float32))
 
 
-_LOADERS = {"clip": ClipEmbedder, "jina": JinaEmbedder}
+class MClipEmbedder:
+    """멀티링구얼 텍스트 타워 + 영어 CLIP 이미지 타워 (sentence-transformers 두 모델 조합).
+    두 타워는 같은 512차원 공간에 정렬돼 있다."""
+
+    def __init__(self, text_hf_id: str, image_hf_id: str, device: str | None = None):
+        import torch
+        from sentence_transformers import SentenceTransformer
+
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.text_model = SentenceTransformer(text_hf_id, device=self.device)
+        self.image_model = SentenceTransformer(image_hf_id, device=self.device)
+
+    def embed_images(self, images, batch_size: int = 32) -> np.ndarray:
+        emb = self.image_model.encode(images, batch_size=batch_size,
+                                      convert_to_numpy=True, show_progress_bar=False)
+        return _l2_normalize(emb.astype(np.float32))
+
+    def embed_texts(self, texts, batch_size: int = 64) -> np.ndarray:
+        emb = self.text_model.encode(texts, batch_size=batch_size,
+                                     convert_to_numpy=True, show_progress_bar=False)
+        return _l2_normalize(emb.astype(np.float32))
+
+
+_LOADERS = {"clip": ClipEmbedder, "jina": JinaEmbedder, "mclip": MClipEmbedder}
 
 
 def load_embedder(model_key: str, device: str | None = None):
     spec = MODELS[model_key]
-    return _LOADERS[spec["loader"]](spec["hf_id"], device=device)
+    cls = _LOADERS[spec["loader"]]
+    if "image_hf_id" in spec:
+        return cls(spec["hf_id"], spec["image_hf_id"], device=device)
+    return cls(spec["hf_id"], device=device)

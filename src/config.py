@@ -11,6 +11,9 @@ DATASET_ID = "ashraq/fashion-product-images-small"
 # ko-clip: 한국어 특화 CLIP, MIT, 151M — 기본 베이스라인.
 # jina-v2: 89개 언어 멀티링구얼, 865M, CC-BY-NC(비상업) — 비교군.
 #          trust_remote_code가 필요해서 명시적으로 선택했을 때만 로드한다.
+#          이미지 타워가 512px EVA02라 CPU에서 이미지당 ~7초 — 서브셋(--stride)으로만 실용적.
+# m-clip: 멀티링구얼 텍스트 타워(mUSE 증류) + 영어 CLIP ViT-B/32 이미지 타워 조합,
+#         apache-2.0 — 이미지 비용은 ko-clip과 동일.
 MODELS = {
     "ko-clip": {
         "hf_id": "Bingsu/clip-vit-base-patch32-ko",
@@ -19,6 +22,11 @@ MODELS = {
     "jina-v2": {
         "hf_id": "jinaai/jina-clip-v2",
         "loader": "jina",
+    },
+    "m-clip": {
+        "hf_id": "sentence-transformers/clip-ViT-B-32-multilingual-v1",
+        "image_hf_id": "sentence-transformers/clip-ViT-B-32",
+        "loader": "mclip",
     },
 }
 DEFAULT_MODEL = "ko-clip"

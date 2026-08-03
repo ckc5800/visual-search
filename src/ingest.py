@@ -22,31 +22,36 @@ META_COLS = [
 ]
 
 
-def iter_rows(limit: int | None):
-    """(rows, total) — limit이 있으면 스트리밍(전체 다운로드 없음), 없으면 캐시 전체."""
+def iter_rows(limit: int | None, stride: int = 1):
+    """(rows, total) — limit이 있으면 스트리밍(전체 다운로드 없음), 없으면 캐시 전체.
+    stride>1이면 N행마다 1개 계통 샘플링 — 느린 모델의 서브셋 A/B용
+    (evaluate.py --subset-stride와 같은 규칙이라 인덱스끼리 정렬이 맞는다)."""
     from datasets import load_dataset
 
     if limit:
         ds = load_dataset(DATASET_ID, split="train", streaming=True)
         return (r for _, r in zip(range(limit), ds)), limit
     ds = load_dataset(DATASET_ID, split="train")
-    return iter(ds), len(ds)
+    positions = range(0, len(ds), stride)
+    return (ds[i] for i in positions), len(positions)
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default=DEFAULT_MODEL, choices=sorted(MODELS))
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--stride", type=int, default=1, help="N행마다 1개 계통 샘플링")
     ap.add_argument("--batch-size", type=int, default=32)
     args = ap.parse_args()
 
-    print(f"[ingest] dataset={DATASET_ID} limit={args.limit or 'all'} model={args.model}")
+    print(f"[ingest] dataset={DATASET_ID} limit={args.limit or 'all'} "
+          f"stride={args.stride} model={args.model}")
     embedder = load_embedder(args.model)
     print(f"[ingest] device={embedder.device}")
 
     # 이미지를 전부 메모리에 올리지 않고 배치 단위로 디코드→임베딩→해제
     # (44K 전체를 PIL로 들고 있으면 1GB 이상 점유)
-    rows, total = iter_rows(args.limit)
+    rows, total = iter_rows(args.limit, args.stride)
     bs = args.batch_size
     chunks, meta, batch = [], [], []
     with tqdm(total=total, desc="embed") as bar:

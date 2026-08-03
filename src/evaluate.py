@@ -67,12 +67,18 @@ def main():
     ap.add_argument("--model", default=DEFAULT_MODEL, choices=sorted(MODELS))
     ap.add_argument("--k", type=int, nargs="+", default=[1, 3, 5, 10])
     ap.add_argument("--strict", action="store_true", help="gold가 빈 질의가 있으면 실패")
+    ap.add_argument("--subset-stride", type=int, default=1,
+                    help="인덱스를 N행마다 1개로 슬라이스 — stride 인제스트된 모델과 공정 비교용")
     args = ap.parse_args()
 
     from models import load_embedder
     from vectorstore import VectorStore
 
     store = VectorStore.load(args.model)
+    if args.subset_stride > 1:
+        s = args.subset_stride
+        store = VectorStore(store.emb[::s].copy(),
+                            store.meta.iloc[::s].reset_index(drop=True))
     queries = load_queries()
 
     empty = [q["q"] for q in queries if not build_gold_mask(store.meta, q["filters"]).any()]
@@ -131,13 +137,15 @@ def main():
             "dataset": DATASET_ID,
             "n_items": int(len(store.meta)),
             "emb_dim": int(store.emb.shape[1]),
+            "subset_stride": args.subset_stride,
             "k": args.k,
         },
         "summary": summary,
         "by_bucket": by_bucket,
         "per_query": rows,
     }
-    out = ROOT / "eval" / f"results_{args.model}.json"
+    suffix = f"_stride{args.subset_stride}" if args.subset_stride > 1 else ""
+    out = ROOT / "eval" / f"results_{args.model}{suffix}.json"
     out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"\n[evaluate] 저장: {out}")
 
