@@ -108,13 +108,15 @@ class MtClipEmbedder:
     이미지 타워는 영어 CLIP 그대로 — m-clip과 인덱스를 공유한다.
     번역 결과는 last_translations에 남겨 평가 시 오번역을 추적할 수 있게 한다."""
 
-    def __init__(self, mt_hf_id: str, image_hf_id: str, device: str | None = None):
+    def __init__(self, mt_hf_id: str, image_hf_id: str, device: str | None = None,
+                 mt_kwargs: dict | None = None):
         import torch
         from sentence_transformers import SentenceTransformer
         from transformers import pipeline
 
         self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-        self.translator = pipeline("translation", model=mt_hf_id, device=-1)
+        self.translator = pipeline("translation", model=mt_hf_id, device=-1,
+                                   **(mt_kwargs or {}))
         self.image_model = SentenceTransformer(image_hf_id, device=self.device)
         self.last_translations: list[str] = []
 
@@ -131,13 +133,72 @@ class MtClipEmbedder:
         return _l2_normalize(emb.astype(np.float32))
 
 
+# 커머스 용어집: 소형 MT가 반복적으로 틀리는 외래어·콩글리시를 LLM 번역 프롬프트에 주입
+COMMERCE_GLOSSARY = {
+    "원피스": "dress", "운동화": "sneakers", "힐": "heels", "손목시계": "wristwatch",
+    "니트": "knit", "쿠르타": "kurta", "슬리퍼": "flip-flops", "구두": "dress shoes",
+    "남아용": "for boys", "여아용": "for girls", "매니큐어": "nail polish",
+    "향수": "perfume", "백팩": "backpack", "반팔": "short-sleeve shirt",
+    "상의": "top (clothing)", "블라우스": "blouse", "스웨트셔츠": "sweatshirt",
+}
+
+
+class LlmClipEmbedder:
+    """LLM(Ollama) 번역 + 영어 CLIP. 질의에 등장한 용어집 항목만 프롬프트에 주입해
+    소형 MT의 도메인 오역("운동화→Male Aggression")을 도메인 지식으로 잡는 접근."""
+
+    def __init__(self, ollama_model: str, image_hf_id: str, device: str | None = None):
+        import torch
+        from sentence_transformers import SentenceTransformer
+
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.model = ollama_model
+        self.image_model = SentenceTransformer(image_hf_id, device=self.device)
+        self.last_translations: list[str] = []
+
+    def _translate(self, text: str) -> str:
+        import requests
+
+        hits = {k: v for k, v in COMMERCE_GLOSSARY.items() if k in text}
+        glossary = "".join(f"\n- {k} = {v}" for k, v in hits.items())
+        prompt = (
+            "Translate the Korean product-search query into concise English "
+            "for an e-commerce image search engine. Output ONLY the English translation, "
+            "no quotes, no explanation."
+            + (f"\nGlossary (must follow):{glossary}" if glossary else "")
+            + f"\nKorean query: {text}\nEnglish:"
+        )
+        r = requests.post(
+            "http://localhost:11434/api/generate",
+            json={"model": self.model, "prompt": prompt, "stream": False,
+                  "options": {"temperature": 0}},
+            timeout=300,
+        )
+        r.raise_for_status()
+        return r.json()["response"].strip().strip('"')
+
+    def embed_images(self, images, batch_size: int = 32) -> np.ndarray:
+        emb = self.image_model.encode(images, batch_size=batch_size,
+                                      convert_to_numpy=True, show_progress_bar=False)
+        return _l2_normalize(emb.astype(np.float32))
+
+    def embed_texts(self, texts, batch_size: int = 32) -> np.ndarray:
+        self.last_translations = [self._translate(t) for t in texts]
+        emb = self.image_model.encode(self.last_translations, batch_size=batch_size,
+                                      convert_to_numpy=True, show_progress_bar=False)
+        return _l2_normalize(emb.astype(np.float32))
+
+
 _LOADERS = {"clip": ClipEmbedder, "jina": JinaEmbedder, "mclip": MClipEmbedder,
-            "mtclip": MtClipEmbedder}
+            "mtclip": MtClipEmbedder, "llmclip": LlmClipEmbedder}
 
 
 def load_embedder(model_key: str, device: str | None = None):
     spec = MODELS[model_key]
     cls = _LOADERS[spec["loader"]]
+    kwargs = {}
     if "image_hf_id" in spec:
-        return cls(spec["hf_id"], spec["image_hf_id"], device=device)
-    return cls(spec["hf_id"], device=device)
+        kwargs["image_hf_id"] = spec["image_hf_id"]
+    if "mt_kwargs" in spec:
+        kwargs["mt_kwargs"] = spec["mt_kwargs"]
+    return cls(spec["hf_id"], device=device, **kwargs)

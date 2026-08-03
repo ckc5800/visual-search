@@ -30,11 +30,25 @@ MODELS = {
     },
     # 번역 파이프라인: 한국어 질의 → MT(ko→en) → 영어 CLIP 텍스트 인코더.
     # 이미지 타워가 m-clip과 같은 영어 CLIP ViT-B/32라 인덱스를 재사용한다.
+    # 번역기 3종을 갈아끼우며 "번역 품질 → 검색 성능" 영향을 측정한다.
     "en-clip-mt": {
         "hf_id": "Helsinki-NLP/opus-mt-ko-en",
         "image_hf_id": "sentence-transformers/clip-ViT-B-32",
         "index_alias": "m-clip",
         "loader": "mtclip",
+    },
+    "en-clip-nllb": {
+        "hf_id": "facebook/nllb-200-distilled-600M",
+        "image_hf_id": "sentence-transformers/clip-ViT-B-32",
+        "index_alias": "m-clip",
+        "loader": "mtclip",
+        "mt_kwargs": {"src_lang": "kor_Hang", "tgt_lang": "eng_Latn"},
+    },
+    "en-clip-llm": {
+        "hf_id": "qwen2.5:3b",  # Ollama 모델 이름 (7b는 CPU 경합 시 타임아웃 — 야간 인제스트 후 재실험)
+        "image_hf_id": "sentence-transformers/clip-ViT-B-32",
+        "index_alias": "m-clip",
+        "loader": "llmclip",
     },
 }
 DEFAULT_MODEL = "ko-clip"
