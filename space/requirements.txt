@@ -1,0 +1,9 @@
+# Space 런타임 전용 — ko-clip 서빙에 필요한 최소 집합 (torch는 Dockerfile에서 CPU 휠)
+transformers>=4.50,<5
+datasets>=3.0
+pillow>=10.0
+numpy>=1.26
+pandas>=2.2
+pyarrow>=17.0
+fastapi>=0.115
+uvicorn>=0.30
