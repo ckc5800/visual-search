@@ -41,7 +41,17 @@ def test_rank_metrics():
     m = rank_metrics(ranked, ks=[1, 3])
     assert m["hit@1"] is False and m["hit@3"] is True
     assert m["rr"] == pytest.approx(0.5)
+    assert m["precision@3"] == pytest.approx(1 / 3)
     assert rank_metrics(np.array([False, False]), ks=[1])["rr"] == 0.0
+
+
+def test_bucket_of():
+    from evaluate import bucket_of
+
+    assert bucket_of(1) == "gold≤50"
+    assert bucket_of(50) == "gold≤50"
+    assert bucket_of(51) == "51~500"
+    assert bucket_of(501) == "500+"
 
 
 def test_queries_file_valid():

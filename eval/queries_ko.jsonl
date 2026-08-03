@@ -27,20 +27,20 @@
 {"q": "캐주얼 남성 신발", "filters": {"articleType": "Casual Shoes", "gender": "Men", "usage": "Casual"}}
 {"q": "운동용 남성 반바지", "filters": {"articleType": "Shorts", "gender": "Men", "usage": "Sports"}}
 {"q": "여름용 원피스", "filters": {"articleType": "Dresses", "season": "Summer"}}
-{"q": "겨울 스웨터", "filters": {"articleType": "Sweaters", "season": "Winter"}}
+{"q": "니트 스웨터", "filters": {"articleType": "Sweaters"}, "note": "season 라벨은 Sweaters의 87%가 Fall이라 '겨울' 필터는 메타데이터 특성상 부적합 — 카테고리만 필터"}
 {"q": "스포츠 양말", "filters": {"articleType": "Socks", "usage": "Sports"}}
 {"q": "파티용 여성 원피스", "filters": {"articleType": "Dresses", "gender": "Women", "usage": "Party"}}
 {"q": "인도 전통 여성 쿠르타", "filters": {"articleType": ["Kurtas", "Kurtis"], "gender": "Women"}}
 {"q": "캐주얼 남성 반팔", "filters": {"articleType": "Tshirts", "gender": "Men", "usage": "Casual"}}
-{"q": "여행용 백팩", "filters": {"articleType": "Backpacks"}}
-{"q": "여름에 신는 슬리퍼", "filters": {"articleType": "Flip Flops"}}
+{"q": "스포츠용 백팩", "filters": {"articleType": "Backpacks", "usage": "Sports"}, "note": "구 '여행용 백팩'은 usage=Travel이 11개뿐 + 필터 없이는 8번과 중복이라 교체"}
+{"q": "여름에 신는 슬리퍼", "filters": {"articleType": "Flip Flops"}, "note": "'여름에 신는'은 카테고리 묘사로 보고 season 미필터 (질의 의도 > 라벨)"}
 {"q": "출근할 때 신는 검정 구두", "filters": {"articleType": "Formal Shoes", "baseColour": "Black"}}
 {"q": "운동할 때 입는 바지", "filters": {"articleType": "Track Pants"}}
-{"q": "청바지에 어울리는 남성 캐주얼 셔츠", "filters": {"articleType": "Shirts", "gender": "Men", "usage": "Casual"}}
+{"q": "청바지에 어울리는 남성 캐주얼 셔츠", "filters": {"articleType": "Shirts", "gender": "Men", "usage": "Casual"}, "note": "'청바지에 어울리는'(스타일 궁합)은 미모델 — gold가 질의 의도보다 넓음"}
 {"q": "손목에 차는 시계", "filters": {"articleType": "Watches"}}
 {"q": "햇빛 가리는 모자", "filters": {"articleType": "Caps"}}
 {"q": "지갑", "filters": {"articleType": "Wallets"}}
-{"q": "남성 가죽 지갑", "filters": {"articleType": "Wallets", "gender": "Men"}}
+{"q": "남성 가죽 지갑", "filters": {"articleType": "Wallets", "gender": "Men"}, "note": "소재(가죽)는 메타데이터에 없어 미모델 — gold가 질의 의도보다 넓음"}
 {"q": "넥타이", "filters": {"articleType": "Ties"}}
 {"q": "여성 귀걸이", "filters": {"articleType": "Earrings", "gender": "Women"}}
 {"q": "아이들 티셔츠", "filters": {"articleType": "Tshirts", "gender": ["Boys", "Girls"]}}
