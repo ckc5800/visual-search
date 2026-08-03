@@ -12,7 +12,9 @@
 """
 import io
 import os
+import time
 from contextlib import asynccontextmanager
+from functools import lru_cache
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse, Response
@@ -63,23 +65,54 @@ def _results(indices, scores) -> list[dict]:
     return out
 
 
-@app.get("/api/search")
-def search(q: str, k: int = 24, hybrid: bool = False):
+@lru_cache(maxsize=512)
+def _embed_query(q: str):
+    """질의 임베딩 캐시 — 반복 질의(예시 칩, 정교화 재검색)의 TTFB를 줄인다.
+    모델은 프로세스당 하나(VS_MODEL)라 질의 문자열만 키로 충분."""
+    return STATE["embedder"].embed_texts([q])[0]
+
+
+def _rank(q: str, filters: dict, k: int):
+    """임베딩→랭킹 공통 경로. 단계별 소요 시간(ms)을 함께 반환한다."""
     import numpy as np
 
     from evaluate import build_gold_mask
-    from hybrid import apply_filter_to_scores, extract_filters
+    from hybrid import apply_filter_to_scores
 
     store = STATE["store"]
-    emb = STATE["embedder"].embed_texts([q])[0]
+    t0 = time.perf_counter()
+    emb = _embed_query(q)
+    t1 = time.perf_counter()
     scores = store.emb @ emb
-    filters = extract_filters(q) if hybrid else {}
     if filters:
         scores = apply_filter_to_scores(scores, build_gold_mask(store.meta, filters))
     top = np.argsort(-scores)[:k]
     top = top[np.isfinite(scores[top])]  # 필터 통과분이 k 미만이면 그만큼만
+    t2 = time.perf_counter()
+    timing = {"embed_ms": round((t1 - t0) * 1000, 1), "rank_ms": round((t2 - t1) * 1000, 1)}
+    return top, scores, timing
+
+
+@app.get("/api/search")
+def search(q: str, k: int = 24, hybrid: bool = False):
+    from hybrid import extract_filters
+
+    filters = extract_filters(q) if hybrid else {}
+    top, scores, timing = _rank(q, filters, k)
     return {"model": STATE["model_key"], "query": q, "hybrid": hybrid,
-            "filters": filters, "items": _results(top, scores)}
+            "filters": filters, "timing": timing, "items": _results(top, scores)}
+
+
+@app.get("/api/refine")
+def refine(q: str, followup: str, filters: str = "{}", k: int = 24):
+    import json
+
+    from refine import merge_refinement
+
+    new_q, merged = merge_refinement(q, json.loads(filters), followup)
+    top, scores, timing = _rank(new_q, merged, k)
+    return {"model": STATE["model_key"], "query": new_q, "filters": merged,
+            "timing": timing, "items": _results(top, scores)}
 
 
 @app.get("/api/similar")

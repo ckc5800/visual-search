@@ -8,7 +8,12 @@
 LLM 추출로 바꿀 수 있는 구조지만, 속성 어휘가 닫혀 있는 도메인이라 사전 매핑으로
 시작한다 (오추출 디버깅이 쉽고 지연이 0에 가깝다).
 """
+import re
+
 import numpy as np
+
+# "네이비 말고", "검정 빼고", "정장 제외" — 부정된 단어는 추출에서 뺀다
+_NEG = re.compile(r"(\S+?)\s*(?:말고|빼고|제외)")
 
 # 긴 패턴을 먼저 검사한다 ("연분홍"이 "분홍"보다 먼저 매칭되도록 정렬은 아래에서)
 COLOUR_MAP = {
@@ -50,17 +55,18 @@ def _match(query: str, mapping: dict) -> list[str]:
     return sorted(hits)
 
 
+FIELD_MAPS = {"baseColour": COLOUR_MAP, "gender": GENDER_MAP, "usage": USAGE_MAP}
+
+
 def extract_filters(query: str) -> dict:
-    """질의에서 메타 필터 조건 추출. 항목이 없으면 빈 dict."""
+    """질의에서 메타 필터 조건 추출. "X 말고/빼고/제외"의 X는 제외. 없으면 빈 dict.
+    같은 필드에 여러 값이 잡히면 OR로 남긴다 (좁히기보다 안전한 쪽)."""
+    neg_words = " ".join(_NEG.findall(query))
     out = {}
-    if c := _match(query, COLOUR_MAP):
-        out["baseColour"] = c
-    if g := _match(query, GENDER_MAP):
-        # "남아"가 잡히면 "남자"류 매칭은 오탐일 수 있으나, 사전 키가 겹치지 않아
-        # 동시 매칭 시 둘 다 OR로 남긴다 (좁히기보다 안전한 쪽)
-        out["gender"] = g
-    if u := _match(query, USAGE_MAP):
-        out["usage"] = u
+    for field, mapping in FIELD_MAPS.items():
+        vals = sorted(set(_match(query, mapping)) - set(_match(neg_words, mapping)))
+        if vals:
+            out[field] = vals
     return out
 
 
