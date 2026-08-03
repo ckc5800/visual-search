@@ -103,7 +103,36 @@ class MClipEmbedder:
         return _l2_normalize(emb.astype(np.float32))
 
 
-_LOADERS = {"clip": ClipEmbedder, "jina": JinaEmbedder, "mclip": MClipEmbedder}
+class MtClipEmbedder:
+    """번역 파이프라인: 한국어 질의를 MT(ko→en)로 번역한 뒤 영어 CLIP으로 인코딩.
+    이미지 타워는 영어 CLIP 그대로 — m-clip과 인덱스를 공유한다.
+    번역 결과는 last_translations에 남겨 평가 시 오번역을 추적할 수 있게 한다."""
+
+    def __init__(self, mt_hf_id: str, image_hf_id: str, device: str | None = None):
+        import torch
+        from sentence_transformers import SentenceTransformer
+        from transformers import pipeline
+
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.translator = pipeline("translation", model=mt_hf_id, device=-1)
+        self.image_model = SentenceTransformer(image_hf_id, device=self.device)
+        self.last_translations: list[str] = []
+
+    def embed_images(self, images, batch_size: int = 32) -> np.ndarray:
+        emb = self.image_model.encode(images, batch_size=batch_size,
+                                      convert_to_numpy=True, show_progress_bar=False)
+        return _l2_normalize(emb.astype(np.float32))
+
+    def embed_texts(self, texts, batch_size: int = 32) -> np.ndarray:
+        out = self.translator(list(texts), max_length=64, batch_size=batch_size)
+        self.last_translations = [o["translation_text"] for o in out]
+        emb = self.image_model.encode(self.last_translations, batch_size=batch_size,
+                                      convert_to_numpy=True, show_progress_bar=False)
+        return _l2_normalize(emb.astype(np.float32))
+
+
+_LOADERS = {"clip": ClipEmbedder, "jina": JinaEmbedder, "mclip": MClipEmbedder,
+            "mtclip": MtClipEmbedder}
 
 
 def load_embedder(model_key: str, device: str | None = None):

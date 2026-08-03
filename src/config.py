@@ -28,12 +28,22 @@ MODELS = {
         "image_hf_id": "sentence-transformers/clip-ViT-B-32",
         "loader": "mclip",
     },
+    # 번역 파이프라인: 한국어 질의 → MT(ko→en) → 영어 CLIP 텍스트 인코더.
+    # 이미지 타워가 m-clip과 같은 영어 CLIP ViT-B/32라 인덱스를 재사용한다.
+    "en-clip-mt": {
+        "hf_id": "Helsinki-NLP/opus-mt-ko-en",
+        "image_hf_id": "sentence-transformers/clip-ViT-B-32",
+        "index_alias": "m-clip",
+        "loader": "mtclip",
+    },
 }
 DEFAULT_MODEL = "ko-clip"
 
 # 인덱스 파일 이름 규칙: 모델별로 분리 저장해 A/B를 가능하게 한다.
+# index_alias가 있으면 그 모델의 인덱스를 공유한다 (이미지 타워가 같은 경우).
 def index_paths(model_key: str):
+    key = MODELS.get(model_key, {}).get("index_alias", model_key)
     return (
-        INDEX_DIR / f"emb_{model_key}.npy",
-        INDEX_DIR / f"meta_{model_key}.parquet",
+        INDEX_DIR / f"emb_{key}.npy",
+        INDEX_DIR / f"meta_{key}.parquet",
     )

@@ -92,11 +92,13 @@ def main():
 
     embedder = load_embedder(args.model)
     q_emb = embedder.embed_texts([q["q"] for q in queries])
+    # 번역 파이프라인 모델이면 번역문을 함께 기록 (오번역 실패 분석용)
+    translations = getattr(embedder, "last_translations", None) or [None] * len(queries)
 
     max_k = max(args.k)
     ids = store.meta["id"].to_numpy()
     rows = []
-    for q, emb in zip(queries, q_emb):
+    for q, emb, tr in zip(queries, q_emb, translations):
         gold = build_gold_mask(store.meta, q["filters"])
         if not gold.any():
             continue
@@ -110,10 +112,13 @@ def main():
         top = np.argsort(-scores)[:max_k]
         top = top[np.isfinite(scores[top])]  # 필터 통과분이 k 미만이면 그만큼만
         m = rank_metrics(gold[top], args.k)
-        rows.append({
+        row = {
             "q": q["q"], "gold_n": int(gold.sum()), "bucket": bucket_of(int(gold.sum())),
             **m, "top_ids": ids[top].tolist(),
-        })
+        }
+        if tr is not None:
+            row["translation"] = tr
+        rows.append(row)
 
     df = pd.DataFrame(rows)
     metric_cols = [f"hit@{k}" for k in args.k] + [f"precision@{max_k}", "rr"]
