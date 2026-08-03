@@ -17,7 +17,7 @@ jobs:
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
       - run: pip install -r requirements.txt pytest
       - name: 진입점 임포트 확인
-        run: python -c "import sys; sys.path.insert(0,'src'); import config, models, vectorstore, ingest, search"
+        run: python -c "import sys; sys.path.insert(0,'src'); import config, models, vectorstore, ingest, search, evaluate, api"
         env:
           PYTHONUTF8: "1"
       - run: pytest -q tests
