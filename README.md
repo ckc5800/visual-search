@@ -26,7 +26,15 @@ python src/ingest.py                # 전체 44K
 # 검색
 python src/search.py "체크무늬 네이비 남성 셔츠"
 python src/search.py --model jina-v2 --top-k 10 "여름용 캐주얼 원피스"
+python src/search.py --image my_shirt.jpg     # 이미지로 비슷한 상품 찾기
+
+# 데모 웹 UI (질의 → 상품 이미지 그리드, 이미지 클릭 → 비슷한 상품)
+python -m uvicorn --app-dir src api:app --port 8321
 ```
+
+이미지 질의 주의: 이 데이터셋은 60×80 저해상도라 JPEG 재인코딩(quality 75)만으로도
+자기 자신과의 유사도가 1.000 → 0.912로 떨어진다(근사 중복 상품에 밀릴 수 있음).
+무손실(PNG) 또는 원본 픽셀로 질의하면 자기 자신이 정확히 1위로 나오는 것 확인함.
 
 ## 평가 결과
 
