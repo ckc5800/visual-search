@@ -26,6 +26,14 @@ def test_extract_multi_value():
     assert extract_filters("남아용 신발")["gender"] == ["Boys"]
 
 
+def test_no_false_positive_in_compound_words():
+    # "파란만장", "골드미스", "그린란드"는 색상 키워드를 부분 문자열로 포함하지만
+    # 무관한 복합어 — 오추출되면 안 된다.
+    assert extract_filters("파란만장한 인생 티셔츠") == {}
+    assert extract_filters("골드미스룩 원피스") == {}
+    assert extract_filters("그린란드 여행 자켓") == {}
+
+
 def test_apply_filter_fallback_on_empty():
     scores = np.array([0.9, 0.5, 0.1], dtype=np.float32)
     empty = np.zeros(3, dtype=bool)

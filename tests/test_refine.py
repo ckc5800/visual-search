@@ -40,3 +40,15 @@ def test_negation_followup():
     )
     assert f["baseColour"] == ["Green"]
     assert "말고" not in q
+
+
+def test_negation_only_followup_removes_filter():
+    # 대체 값 없는 순수 부정("네이비 말고")은 extract_filters가 빈 dict를
+    # 반환하므로, 이전 값을 그대로 두면 안 되고 필터에서 제거되어야 한다.
+    q, f = merge_refinement(
+        "네이비 남성 셔츠", {"baseColour": ["Navy Blue"], "gender": ["Men"]},
+        "네이비 말고"
+    )
+    assert "baseColour" not in f
+    assert f["gender"] == ["Men"]
+    assert "말고" not in q

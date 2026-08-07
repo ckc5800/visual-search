@@ -47,7 +47,16 @@ USAGE_MAP = {
 }
 
 
+# 색/성별/용도 키워드를 우연히 포함하지만 무관한 복합어 — 단순 부분 문자열 매칭이라
+# "파란만장한", "골드미스룩", "그린란드" 같은 단어에서 색상을 오추출하는 것을 막는다.
+# (평가에서 발견된 실제 사례. 일반적인 한국어 형태소 경계 판별은 하지 않고,
+# 발견된 오탐 복합어를 매칭 전에 제거하는 것으로 국한한다.)
+_FALSE_POSITIVE_COMPOUNDS = ("파란만장", "골드미스", "그린란드")
+
+
 def _match(query: str, mapping: dict) -> list[str]:
+    for w in _FALSE_POSITIVE_COMPOUNDS:
+        query = query.replace(w, "")
     hits = set()
     for k, v in mapping.items():
         if k in query:

@@ -12,3 +12,4 @@ pyarrow>=17.0
 tqdm>=4.66
 fastapi>=0.115
 uvicorn>=0.30
+requests>=2.32
