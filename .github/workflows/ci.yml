@@ -16,8 +16,11 @@ jobs:
       # torch는 CPU 휠로 설치 (기본 인덱스는 CUDA 포함이라 무겁다)
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
       - run: pip install -r requirements.txt pytest
+      # hybrid·refine·ensemble 이 빠져 있었다 — 앞의 둘은 api.py 가 요청마다
+      # 지연 임포트하는 모듈이라, 깨져도 이 검사와 단위 테스트는 통과하고
+      # 런타임에만 죽는다(임포트가 함수 안에 있어 더 늦게 드러난다).
       - name: 진입점 임포트 확인
-        run: python -c "import sys; sys.path.insert(0,'src'); import config, models, vectorstore, ingest, search, evaluate, api"
+        run: python -c "import sys; sys.path.insert(0,'src'); import config, models, vectorstore, ingest, search, evaluate, api, hybrid, refine, ensemble"
         env:
           PYTHONUTF8: "1"
       - run: pytest -q tests
